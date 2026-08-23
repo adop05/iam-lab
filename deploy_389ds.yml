@@ -1,0 +1,65 @@
+---
+- name: Deploy 389 Directory Server
+  hosts: ldap_servers
+  become: yes
+  vars:
+    dir_domain: "lab.local"
+    dir_suffix: "dc=lab,dc=local"
+    dir_admin_pass: "SecureAdminPassword123!"
+
+  tasks:
+    - name: Install 389 Directory Server and Firewall packages
+      dnf:
+        name: 
+          - 389-ds-base
+          - openldap-clients
+          - firewalld
+          - python3-firewall
+        state: present
+
+    - name: Ensure Firewalld is running
+      systemd:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    - name: Configure Firewalld for LDAP/LDAPS
+      firewalld:
+        service: "{{ item }}"
+        permanent: yes
+        state: enabled
+        immediate: yes
+      loop:
+        - ldap
+        - ldaps
+
+    - name: Create dscreate answer file template
+      copy:
+        dest: /tmp/instance.inf
+        content: |
+          [general]
+          FullMachineName= localhost
+          StrictHostCheck= false
+          
+          [slapd]
+          instance_name= dirserver
+          root_password= {{ dir_admin_pass }}
+          
+          [backend-userroot]
+          sample_entries= yes
+          suffix= {{ dir_suffix }}
+
+    - name: Check if 389-ds instance already exists
+      stat:
+        path: /etc/dirsrv/slapd-dirserver
+      register: ds_instance
+
+    - name: Run dscreate to provision the directory
+      command: dscreate from-file /tmp/instance.inf
+      when: not ds_instance.stat.exists
+
+    - name: Ensure 389-ds service is running and enabled
+      systemd:
+        name: dirsrv@dirserver
+        state: started
+        enabled: yes
