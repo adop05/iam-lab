@@ -52,5 +52,7 @@ Enforcing password complexity standards and mandatory Multi-Factor Authenticatio
 
 ### 4. Zero-Trust Enforcement & Token Registration
 The identity gateway intercepting unauthenticated sessions and enforcing mandatory TOTP authenticator setup:
+
 ![MFA Enforcement Intercept](proof_of_mfa_enforcement.png)
+
 ![MFA Registration Success](showcase_mfa.png)
