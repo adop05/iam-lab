@@ -39,20 +39,20 @@ Deploy an enterprise Identity Provider (IdP) using Keycloak, federate identity m
 
 ### 1. Containerized Service Deployment
 The Keycloak gateway running in a healthy, isolated Docker container environment:
-![Docker Deployment](docker_screenshot.png)
+![Docker Deployment](screenshots/docker_screenshot.png)
 
 ### 2. Directory Server Federation
 Successful LDAP bridge binding Keycloak to the 389 Directory Server backend (`10.0.0.106:389`):
-![LDAP Federation](ldap_integration_screenshot.png)
+![LDAP Federation](screenshots/ldap_integration_screenshot.png)
 
 ### 3. Identity Security Policies
 Enforcing password complexity standards and mandatory Multi-Factor Authentication (MFA) across the realm:
-![Password Policy](enforced_password_complexity.png)
-![Enforced MFA](enforced_mfa.png)
+![Password Policy](screenshots/enforced_password_complexity.png)
+![Enforced MFA](screenshots/enforced_mfa.png)
 
 ### 4. Zero-Trust Enforcement & Token Registration
 The identity gateway intercepting unauthenticated sessions and enforcing mandatory TOTP authenticator setup:
 
-![MFA Enforcement Intercept](proof_of_mfa_enforcement.png)
+![MFA Enforcement Intercept](screenshots/proof_of_mfa_enforcement.png)
 
-![MFA Registration Success](showcase_mfa.png)
+![MFA Registration Success](screenshots/showcase_mfa.png)
