@@ -1,0 +1,63 @@
+---
+- name: Deploy Keycloak SSO Gateway
+  hosts: sso_servers
+  become: yes
+  vars:
+    keycloak_admin_user: "admin"
+    keycloak_admin_pass: "SecureAdminPassword123!"
+
+  tasks:
+    - name: Install dependencies for Docker and Firewall
+      dnf:
+        name:
+          - dnf-plugins-core
+          - firewalld
+          - python3-firewall
+        state: present
+
+    - name: Ensure Firewalld is running
+      systemd:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    - name: Add Docker CE repository
+      get_url:
+        url: https://download.docker.com/linux/fedora/docker-ce.repo
+        dest: /etc/yum.repos.d/docker-ce.repo
+        mode: '0644'
+
+    - name: Install Docker and Python dependencies
+      dnf:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - python3-docker
+        state: present
+
+    - name: Ensure Docker is running and enabled
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Configure Firewalld for Keycloak HTTP Traffic (Port 8080)
+      firewalld:
+        port: 8080/tcp
+        permanent: yes
+        state: enabled
+        immediate: yes
+
+    - name: Deploy Keycloak container
+      docker_container:
+        name: keycloak
+        image: quay.io/keycloak/keycloak:latest
+        state: started
+        restart_policy: always
+        ports:
+          - "8080:8080"
+        command: start-dev
+        env:
+          KEYCLOAK_ADMIN: "{{ keycloak_admin_user }}"
+          KEYCLOAK_ADMIN_PASSWORD: "{{ keycloak_admin_pass }}"
